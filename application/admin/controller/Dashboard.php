@@ -46,7 +46,7 @@ class Dashboard extends Backend
             'sevendau'         => '32%',
             'paylist'          => $paylist,
             'createlist'       => $createlist,
-            'addonversion'       => $addonVersion,
+            'addonversion'     => $addonVersion,
             'uploadmode'       => $uploadmode
         ]);
 
