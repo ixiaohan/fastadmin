@@ -5,6 +5,7 @@ namespace app\api\controller;
 
 
 use app\admin\model\Area;
+use app\admin\model\healthman\Hospview;
 use app\common\controller\Api;
 use think\Db;
 
@@ -72,7 +73,31 @@ class Hospital extends Api
         }
         // 返回处理过的数据
         $list = \app\admin\model\healthman\Hospital::where('poid','IN',$poids)->select();
-        $this->success(\app\admin\model\healthman\Hospital::getLastSql(),$list);
+        foreach ($list as $item){
+            $hospcare = self::hospcare($item['poid']);
+            if($hospcare['ibeen'] > $hospcare['never']){
+                $item['caretext'] = $hospcare['ibeen'] . ' 的用户去过';
+            }elseif($hospcare['ibeen'] < $hospcare['never']){
+                $item['caretext'] = $hospcare['never'] . ' 的用户没去过';
+            }else{
+                $item['caretext'] = 0;
+            }
+        }
+        $this->success('success',$list);
     }
 
+    /**
+     * 用户表态数据
+     * @param $poid
+     * @return array
+     * @throws \think\Exception
+     */
+    private function hospcare($poid){
+        $sumer = Hospview::where(['poid'=>$poid])->where('declare','>',0)->count('id') + 2;
+        $ibeen = round((Hospview::where(['poid'=>$poid,'declare'=>1])->count('id') +1)/ $sumer,3) *100;
+        $never = round((Hospview::where(['poid'=>$poid,'declare'=>2])->count('id') +1)/ $sumer,3) *100;
+        $scale = $ibeen;
+
+        return ['ibeen'=>$ibeen.'%','never'=>$never.'%','scale'=>$scale];
+    }
 }
