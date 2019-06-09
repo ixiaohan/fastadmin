@@ -36,7 +36,7 @@ class Hostrace extends Backend
     /**
      * 添加
      */
-    public function add()
+    public function add($ids = null)
     {
         if ($this->request->isPost()) {
             $params = $this->request->post("row/a");
@@ -81,6 +81,11 @@ class Hostrace extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
+        $hosp = \app\admin\model\healthman\Hospital::get($ids);
+        $row['hospital_id'] = $hosp['id'];
+        $row['poid'] = $hosp['poid'];
+        $this->view->assign("row", $row);
+
         return $this->view->fetch();
     }
 

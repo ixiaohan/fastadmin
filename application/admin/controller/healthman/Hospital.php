@@ -18,8 +18,6 @@ class Hospital extends Backend
      */
     protected $model = null;
 
-    protected $searchFields = 'title';
-
     public function _initialize()
     {
         parent::_initialize();
