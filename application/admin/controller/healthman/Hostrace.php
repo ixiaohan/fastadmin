@@ -44,6 +44,11 @@ class Hostrace extends Backend
                 $params = $this->preExcludeFields($params);
                 $params['poid'] = self::getPoid($params['hospital_id']);
 
+                $has = \app\admin\model\healthman\Hostrace::where(['poid'=>$params['poid'],'step'=>$params['step']])->count('id');
+                if($has){
+                    $this->error('记录已存在...');
+                }
+
                 if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
                     $params[$this->dataLimitField] = $this->auth->id;
                 }
