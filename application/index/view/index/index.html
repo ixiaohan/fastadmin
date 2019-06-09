@@ -34,20 +34,16 @@
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-menu">
                         <span class="sr-only">Toggle navigation</span><i class="fa fa-bars"></i>
                     </button>
-                    <a class="navbar-brand page-scroll" href="#page-top"><img src="__CDN__/assets/img/logo.png" style="width:200px;" alt=""></a>
+                    <a class="navbar-brand page-scroll" href="#page-top" style="font-size:28px;height: 50px;line-height: 50px;">{$site.name}</a>
                 </div>
 
                 <div class="collapse navbar-collapse" id="navbar-collapse-menu">
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="https://www.fastadmin.net" target="_blank">{:__('Home')}</a></li>
-                        <li><a href="https://www.fastadmin.net/store.html" target="_blank">{:__('Store')}</a></li>
-                        <li><a href="https://www.fastadmin.net/wxapp.html" target="_blank">{:__('Wxapp')}</a></li>
-                        <li><a href="https://www.fastadmin.net/service.html" target="_blank">{:__('Services')}</a></li>
-                        <li><a href="https://www.fastadmin.net/download.html" target="_blank">{:__('Download')}</a></li>
-                        <li><a href="https://www.fastadmin.net/demo.html" target="_blank">{:__('Demo')}</a></li>
-                        <li><a href="https://www.fastadmin.net/donate.html" target="_blank">{:__('Donation')}</a></li>
-                        <li><a href="https://forum.fastadmin.net" target="_blank">{:__('Forum')}</a></li>
-                        <li><a href="https://doc.fastadmin.net" target="_blank">{:__('Docs')}</a></li>
+                        <li><a href="." target="_blank">{:__('Home')}</a></li>
+                        <li><a href="./store.html" target="_blank">{:__('Store')}</a></li>
+                        <li><a href="./wxapp.html" target="_blank">{:__('Wxapp')}</a></li>
+                        <li><a href="./service.html" target="_blank">{:__('Services')}</a></li>
+                        <li><a href="./demo.html" target="_blank">{:__('Demo')}</a></li>
                     </ul>
                 </div>
                 <!-- /.navbar-collapse -->
@@ -61,9 +57,9 @@
                     <div class="col-sm-12">
                         <div class="header-content">
                             <div class="header-content-inner">
-                                <h1>FastAdmin</h1>
+                                <h1>HealthTJian</h1>
                                 <h3>{:__('The fastest framework based on ThinkPHP5 and Bootstrap')}</h3>
-                                <a href="{:url('admin/index/login')}" class="btn btn-warning btn-xl page-scroll">{:__('Go to Dashboard')}</a>
+                                <a href="{:url('tjian.php/index/login')}" class="btn btn-warning btn-xl page-scroll">{:__('Go to Dashboard')}</a>
                                 <a href="{:url('index/user/index')}" class="btn btn-outline btn-xl page-scroll">{:__('Go to Member center')}</a>
                             </div>
                         </div>
@@ -138,7 +134,7 @@
             <div class="cta-content">
                 <div class="container">
                     <h2>{:__('Do not hesitate')}<br>{:__('Start to act')}</h2>
-                    <a href="https://doc.fastadmin.net/docs/contributing.html" class="btn btn-outline btn-xl page-scroll">{:__('Contribution')}</a>
+<!--                    <a href="https://doc.fastadmin.net/docs/contributing.html" class="btn btn-outline btn-xl page-scroll">{:__('Contribution')}</a>-->
                 </div>
             </div>
             <div class="overlay"></div>
@@ -178,40 +174,40 @@
                 });
 
                 // 发送版本统计信息，请移除
-                try {
-                    var installed = localStorage.getItem("installed");
-                    if (!installed) {
-                        $.ajax({
-                            url: "{$Think.config.fastadmin.api_url}/statistics/installed",
-                            data: {
-                                version: "{:config('fastadmin.version')}",
-                                os: "{$Think.PHP_OS}",
-                                sapi: "{$Think.PHP_SAPI}",
-                                tpversion: "{$Think.THINK_VERSION}",
-                                phpversion: "{$Think.PHP_VERSION}",
-                                software: "{$Request.server.SERVER_SOFTWARE}",
-                                url: location.href,
-                            },
-                            dataType: 'jsonp',
-                        });
-                        localStorage.setItem("installed", true);
-                    }
-                } catch (e) {
-
-                }
+                // try {
+                //     var installed = localStorage.getItem("installed");
+                //     if (!installed) {
+                //         $.ajax({
+                //             url: "{$Think.config.fastadmin.api_url}/statistics/installed",
+                //             data: {
+                //                 version: "{:config('fastadmin.version')}",
+                //                 os: "{$Think.PHP_OS}",
+                //                 sapi: "{$Think.PHP_SAPI}",
+                //                 tpversion: "{$Think.THINK_VERSION}",
+                //                 phpversion: "{$Think.PHP_VERSION}",
+                //                 software: "{$Request.server.SERVER_SOFTWARE}",
+                //                 url: location.href,
+                //             },
+                //             dataType: 'jsonp',
+                //         });
+                //         localStorage.setItem("installed", true);
+                //     }
+                // } catch (e) {
+                //
+                // }
 
             });
         </script>
 
         <script>
             // FastAdmin统计代码，请移除
-            var _hmt = _hmt || [];
-            (function () {
-                var hm = document.createElement("script");
-                hm.src = "https://hm.baidu.com/hm.js?f8d0a8c400404989e195270b0bbf060a";
-                var s = document.getElementsByTagName("script")[0];
-                s.parentNode.insertBefore(hm, s);
-            })();
+            // var _hmt = _hmt || [];
+            // (function () {
+            //     var hm = document.createElement("script");
+            //     hm.src = "https://hm.baidu.com/hm.js?f8d0a8c400404989e195270b0bbf060a";
+            //     var s = document.getElementsByTagName("script")[0];
+            //     s.parentNode.insertBefore(hm, s);
+            // })();
         </script>
 
     </body>

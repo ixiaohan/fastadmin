@@ -15,8 +15,7 @@ class Demo extends Api
     //如果接口已经设置无需登录,那也就无需鉴权了
     //
     // 无需登录的接口,*表示全部
-    protected $noNeedLogin = ['test', 'test1'];
-    // 无需鉴权的接口,*表示全部
+     // 无需鉴权的接口,*表示全部
     protected $noNeedRight = ['test2'];
 
     /**

@@ -19,7 +19,7 @@
     <div class="panel-heading">
         {:build_heading(null, false)}
         <ul class="nav nav-tabs">
-            {foreach $siteList as $index=>$vo} 
+            {foreach $siteList as $index=>$vo}
             <li class="{$vo.active?'active':''}"><a href="#{$vo.name}" data-toggle="tab">{:__($vo.title)}</a></li>
             {/foreach}
             <li>
