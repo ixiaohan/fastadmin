@@ -48,6 +48,11 @@ class Hospital extends Api
 
         $poids = [];
         foreach ($data as $item) {
+
+            // 处理脏的数据
+            if(preg_match('/体检科|体检中心|健康管理中心/',$item['title']) == 0)
+                continue;
+
             $has = \app\admin\model\healthman\Hospital::where(['poid'=>$item['id']])->count('id');
             if ($has) {
             } else {
@@ -74,6 +79,11 @@ class Hospital extends Api
         // 返回处理过的数据
         $list = \app\admin\model\healthman\Hospital::where('poid','IN',$poids)->select();
         foreach ($list as $item){
+
+            // 处理脏的数据
+            $item['visible'] = preg_match('/体检科|体检中心|健康管理中心/',$item['title']);
+
+            // 处理用户表态
             $hospcare = self::hospcare($item['poid']);
             if($hospcare['ibeen'] > $hospcare['never']){
                 $item['caretext'] = $hospcare['ibeen'] . ' 的用户去过';

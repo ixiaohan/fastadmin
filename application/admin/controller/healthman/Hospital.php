@@ -23,6 +23,7 @@ class Hospital extends Backend
         parent::_initialize();
         $this->model = new \app\admin\model\healthman\Hospital;
         $this->view->assign("flagshipList", $this->model->getFlagshipList());
+        $this->view->assign("statusList", $this->model->getStatusList());
     }
     
     /**
