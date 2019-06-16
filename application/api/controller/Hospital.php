@@ -24,14 +24,15 @@ class Hospital extends Api
         $this->success('请求成功');
     }
 
-    public function areas(){
-        $plist = Area::where(['level'=>1])->field('id,name as text,lat,lng')->select();
-        foreach ($plist as $k=>$v){
-            $clist = Area::where(['pid'=>$v['id']])->field('id,name as text,lat,lng')->select();
+    public function areas()
+    {
+        $plist = Area::where(['level' => 1])->field('id,name as text,lat,lng')->select();
+//        $plist = Area::where(['id' => 1533])->field('id,name as text,lat,lng')->select();
+        foreach ($plist as $k => $v) {
+            $clist = Area::where(['pid' => $v['id']])->field('id,name as text,lat,lng')->select();
             $plist[$k]['children'] = $clist;
-
         }
-        $this->success('',$plist);
+        $this->success('', $plist);
     }
 
 
@@ -50,51 +51,67 @@ class Hospital extends Api
         foreach ($data as $item) {
 
             // 处理脏的数据
-            if(preg_match('/体检科|体检中心|健康管理中心/',$item['title']) == 0)
+            if (preg_match('/体检科|体检中心|健康管理中心/', $item['title']) == 0)
                 continue;
 
-            $has = \app\admin\model\healthman\Hospital::where(['poid'=>$item['id']])->count('id');
+            $has = \app\admin\model\healthman\Hospital::where(['poid' => $item['id']])->count('id');
             if ($has) {
             } else {
                 \app\admin\model\healthman\Hospital::create([
-                    'poid'      => $item['id'],
-                    'tel'       => $item['tel'],
+                    'poid' => $item['id'],
+                    'tel' => $item['tel'],
 
-                    'name'      => $item['title'],
-                    'title'     => $item['title'],
-                    'category'  => $item['category'],
-                    'address'   => $item['address'],
+                    'name' => $item['title'],
+                    'title' => $item['title'],
+                    'category' => $item['category'],
+                    'address' => $item['address'],
 
-                    'lat'       => $item['location']['lat'],
-                    'lng'       => $item['location']['lng'],
+                    'lat' => $item['location']['lat'],
+                    'lng' => $item['location']['lng'],
 
-                    'adcode'    => $item['ad_info']['adcode'],
-                    'province'  =>$item['ad_info']['province'],
-                    'city'      =>$item['ad_info']['city'],
-                    'district'  =>$item['ad_info']['district']
+                    'adcode' => $item['ad_info']['adcode'],
+                    'province' => $item['ad_info']['province'],
+                    'city' => $item['ad_info']['city'],
+                    'district' => $item['ad_info']['district']
                 ]);
             }
             $poids[] = $item['id'];
         }
         // 返回处理过的数据
-        $list = \app\admin\model\healthman\Hospital::where('poid','IN',$poids)->select();
-        foreach ($list as $item){
+        $list = \app\admin\model\healthman\Hospital::where('poid', 'IN', $poids)->select();
+        foreach ($list as $item) {
 
             // 处理脏的数据
-            $item['visible'] = preg_match('/体检科|体检中心|健康管理中心/',$item['title']);
+            $item['visible'] = preg_match('/体检科|体检中心|健康管理中心/', $item['title']);
 
             // 处理用户表态
-            $hospcare = self::hospcare($item['poid']);
-            if($hospcare['ibeen'] > $hospcare['never']){
-                $item['caretext'] = $hospcare['ibeen'] . ' 的用户去过';
-            }elseif($hospcare['ibeen'] < $hospcare['never']){
-                $item['caretext'] = $hospcare['never'] . ' 的用户没去过';
-            }else{
-                $item['caretext'] = 0;
-            }
+//            $hospcare = self::hospcare($item['poid']);
+//            if($hospcare['ibeen'] > $hospcare['never']){
+//                $item['caretext'] = $hospcare['ibeen'] . ' 的用户去过';
+//            }elseif($hospcare['ibeen'] < $hospcare['never']){
+//                $item['caretext'] = $hospcare['never'] . ' 的用户没去过';
+//            }else{
+//                $item['caretext'] = 0;
+//            }
+            $item['caretext'] = 0;
+
         }
-        $this->success('success',$list);
+        $this->success('success', $list);
     }
+
+    public function searchs()
+    {
+        $word = $this->request->request('word');
+        $page = $this->request->request('page', 1);
+
+        $params['title'] = ['like', '%' . $word . '%'];
+
+        $datalist = \app\admin\model\healthman\Hospital::where($params)
+            ->page($page,10)->select();
+
+        $this->success('', $datalist);
+    }
+
 
     /**
      * 用户表态数据
@@ -102,12 +119,13 @@ class Hospital extends Api
      * @return array
      * @throws \think\Exception
      */
-    private function hospcare($poid){
-        $sumer = Hospview::where(['poid'=>$poid])->where('declare','>',0)->count('id') + 2;
-        $ibeen = round((Hospview::where(['poid'=>$poid,'declare'=>1])->count('id') +1)/ $sumer,3) *100;
-        $never = round((Hospview::where(['poid'=>$poid,'declare'=>2])->count('id') +1)/ $sumer,3) *100;
+    private function hospcare($poid)
+    {
+        $sumer = Hospview::where(['poid' => $poid])->where('declare', '>', 0)->count('id') + 2;
+        $ibeen = round((Hospview::where(['poid' => $poid, 'declare' => 1])->count('id') + 1) / $sumer, 3) * 100;
+        $never = round((Hospview::where(['poid' => $poid, 'declare' => 2])->count('id') + 1) / $sumer, 3) * 100;
         $scale = $ibeen;
 
-        return ['ibeen'=>$ibeen.'%','never'=>$never.'%','scale'=>$scale];
+        return ['ibeen' => $ibeen . '%', 'never' => $never . '%', 'scale' => $scale];
     }
 }
