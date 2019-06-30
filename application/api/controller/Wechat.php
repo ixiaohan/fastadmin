@@ -174,13 +174,14 @@ class Wechat extends Api
         $declare = $this->request->post('declare');
 
         $view = Hospview::where(['user_id'=>$this->auth->id,'poid'=>$poid])->find();
-        $view->declare = $declare;
-        $view->save();
-
+        if($view->declare){
+            $this->success('已表态');
+        }else{
+            $view->declare = $declare;
+            $view->save();
+        }
         $declare = self::hospcare($poid);
-
         $this->success('',['declare'=>$declare]);
-
     }
 
     /**
@@ -196,7 +197,9 @@ class Wechat extends Api
         $never = round((Hospview::where(['poid'=>$poid,'declare'=>2])->count('id') +1)/ $sumer,3) *100;
         $scale = $ibeen;
 
-        return ['ibeen'=>$ibeen.'%','never'=>$never.'%','scale'=>$scale];
+        $iview = Hospview::where(['user_id'=>$this->auth->id,'poid'=>$poid])->find();
+
+        return ['ibeen'=>$ibeen.'%','never'=>$never.'%','scale'=>$scale,'iview'=>$iview->declare];
 
     }
 }
