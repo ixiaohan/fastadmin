@@ -7,6 +7,7 @@ use addons\third\library\Service;
 use addons\third\model\Third;
 use app\admin\model\healthman\Hospview;
 use app\admin\model\healthman\Hostrace;
+use app\api\library\WXBizDataCrypt;
 use app\common\controller\Api;
 use app\common\library\Auth;
 use fast\Http;
@@ -35,8 +36,7 @@ class Wechat extends Api
      *
      * @param string $code     Code码
      */
-    public function signin()
-    {
+    public function signin(){
         $code = $this->request->post("code");
         if (!$code) {
             $this->error("参数不正确");
@@ -58,6 +58,9 @@ class Wechat extends Api
                     if ($this->auth->isLogin()) {
                         $third = Third::where(['openid' => $json['openid'], 'platform' => 'wxapp'])->find();
                         if ($third && $third['user_id'] == $this->auth->id) {
+                            //更新access_token
+                            $third->save(['access_token'=>$json['session_key']]);
+
                             $this->success("登录成功", $this->auth->getUserinfo());
                             $this->success("登录成功", ['userInfo' => $this->auth->getUserinfo(),'third'=>$third]);
                         }
@@ -93,55 +96,37 @@ class Wechat extends Api
      * @throws \think\exception\DbException
      */
     public function signup(){
-        $rawData = $this->request->post("rawData");
-        if (!$rawData) {
-            $this->error("参数不正确");
-        }
-        $userInfo = (array)json_decode($rawData, true);
-        die;
-        $params = [
-            'appid'      => $config['wxappid'],
-            'secret'     => $config['wxappsecret'],
-            'js_code'    => $code,
-            'grant_type' => 'authorization_code'
-        ];
-        $result = Http::sendRequest("https://api.weixin.qq.com/sns/jscode2session", $params, 'GET');
-        if ($result['ret']) {
-            $json = (array)json_decode($result['msg'], true);
-            if (isset($json['openid'])) {
-                //如果有传Token
-                if ($this->token) {
-                    $this->auth->init($this->token);
-                    //检测是否登录
-                    if ($this->auth->isLogin()) {
-                        $third = Third::where(['openid' => $json['openid'], 'platform' => 'wxapp'])->find();
-                        if ($third && $third['user_id'] == $this->auth->id) {
-                            $this->success("登录成功", ['userInfo' => $this->auth->getUserinfo(),'third'=>$third]);
-                        }
-                    }
-                }
+        $third = Third::where(['user_id' => $this->auth->id, 'platform' => 'wxapp'])->find();
 
-                $platform = 'wxapp';
-                $result = [
-                    'openid'        => $json['openid'],
-                    'userinfo'      => [
-                        'nickname' => $userInfo['nickName'],
-                    ],
-                    'access_token'  => $json['session_key'],
-                    'refresh_token' => '',
-                    'expires_in'    => isset($json['expires_in']) ? $json['expires_in'] : 0,
-                ];
-                $extend = ['gender' => $userInfo['gender'], 'nickname' => $userInfo['nickName'], 'avatar' => $userInfo['avatarUrl']];
-                $ret = Service::connect($platform, $result, $extend);
-                if ($ret) {
-                    $auth = Auth::instance();
-                    $info = $auth->getUserinfo();
-                    $this->success("登录成功", ['userInfo' => $info]);
-                } else {
-                    $this->error("连接失败");
-                }
-            } else {
-                $this->error("登录失败");
+        $encryptedData = $this->request->request('encryptedData');
+        $iv = $this->request->request('iv');
+
+        $wdc = new WXBizDataCrypt('wx137af966be8ceeaf', $third['access_token']);
+        $res = $wdc->decryptData($encryptedData, $iv, $json);
+        if(0==$res){
+            $data = json_decode($json,true);
+            $user = $this->auth->getUser();
+            $user->save(['avatar'=>$data['avatarUrl'],'nickname'=>$data['nickName']]);
+
+            $third = Third::where(['user_id' => $this->auth->id, 'openid' => $data['openId'], 'platform' => 'wxapp'])->find();
+            $third->save(['openname'=>$data['nickName']]);
+
+            /**
+             * 追加表态的时候进行授权，授权通过后
+             */
+            $poid = $this->request->post('poid', 0);
+            $declare = $this->request->post('declare', 0);
+
+            if($poid && $declare){
+                $view = Hospview::where(['user_id'=>$this->auth->id,'poid'=>$poid])->find();
+                $view->declare = $declare;
+                $view->save();
+
+                $declare = self::hospcare($poid);
+
+                $this->success('',['declare'=>$declare]);
+            }else{
+                $this->success('',['declare'=>[]]);
             }
         }
 
